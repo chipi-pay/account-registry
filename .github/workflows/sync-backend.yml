@@ -1,0 +1,61 @@
+name: Sync to Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'accounts/**'
+      - 'registry.json'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build approved class hashes payload
+        id: payload
+        run: |
+          HASHES=$(jq -c '[.accounts[] | select(.deprecated == false) | {classHash, type, id}]' registry.json)
+          echo "hashes=$HASHES" >> "$GITHUB_OUTPUT"
+
+      - name: Sync to backend
+        env:
+          BACKEND_ADMIN_TOKEN: ${{ secrets.BACKEND_ADMIN_TOKEN }}
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+        run: |
+          if [ -z "$BACKEND_ADMIN_TOKEN" ] || [ -z "$BACKEND_URL" ]; then
+            echo "⚠️ BACKEND_ADMIN_TOKEN or BACKEND_URL not configured. Skipping sync."
+            echo "Set these secrets to enable automatic backend sync."
+            exit 0
+          fi
+
+          echo "Syncing approved class hashes to backend..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${BACKEND_URL}/admin/sync-approved-class-hashes" \
+            -H "Authorization: Bearer ${BACKEND_ADMIN_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{"classHashes": ${{ steps.payload.outputs.hashes }}}')
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+
+          echo "Response: $HTTP_CODE"
+          echo "$BODY"
+
+          if [ "$HTTP_CODE" -ge 400 ]; then
+            echo "❌ Backend sync failed with status $HTTP_CODE"
+            exit 1
+          fi
+
+          echo "✅ Backend sync complete"
+
+      - name: Post sync summary
+        if: always()
+        run: |
+          echo "## Registry Sync Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Active Accounts" >> "$GITHUB_STEP_SUMMARY"
+          jq -r '.accounts[] | select(.deprecated == false) | "- **\(.name)** (\(.type)) — `\(.classHash[0:12])...`"' registry.json >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Deprecated Accounts" >> "$GITHUB_STEP_SUMMARY"
+          jq -r '.accounts[] | select(.deprecated == true) | "- ~~\(.name)~~ (\(.type)) — superseded"' registry.json >> "$GITHUB_STEP_SUMMARY" || echo "- None" >> "$GITHUB_STEP_SUMMARY"
