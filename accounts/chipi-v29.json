@@ -1,0 +1,34 @@
+{
+  "id": "chipi-v29",
+  "name": "Chipi Session Account v29",
+  "type": "CHIPI",
+  "version": "29",
+  "classHash": "0x53f4f8791ed5bed0fddaa553d180c664e32cfaf8316bb232ae77bb08f459f2a",
+  "network": "starknet_mainnet",
+  "license": "MIT",
+  "author": {
+    "name": "Chipi Pay",
+    "github": "chipi-pay"
+  },
+  "repository": "https://github.com/chipi-pay/sessions-smart-contract",
+  "capabilities": ["sessions", "paymaster", "upgrade", "passkey", "multicall"],
+  "gasOverhead": 1.0,
+  "standards": {
+    "src5": true,
+    "src6": true,
+    "snip9": "v2",
+    "snip12": "rev1"
+  },
+  "interfaces": ["ISessionKeyManager", "SRC5", "SRC6", "ISRC9_V2"],
+  "audit": {
+    "audited": true,
+    "firm": "Nethermind AuditAgent",
+    "reportUrl": "https://github.com/chipi-pay/sessions-smart-contract/tree/main/audit",
+    "date": "2025-12-01",
+    "result": "pass",
+    "rounds": 2,
+    "finalReportClean": true
+  },
+  "deprecated": true,
+  "supersededBy": "chipi-v33"
+}

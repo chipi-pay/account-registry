@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Chipi Account Registry Entry",
+  "type": "object",
+  "required": ["id", "name", "type", "classHash", "network", "author", "repository", "capabilities", "standards", "deprecated"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique identifier (kebab-case)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name"
+    },
+    "type": {
+      "type": "string",
+      "description": "Wallet type identifier (e.g., CHIPI, READY, CUSTOM)"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the account implementation"
+    },
+    "classHash": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]+$",
+      "description": "StarkNet class hash"
+    },
+    "network": {
+      "type": "string",
+      "enum": ["starknet_mainnet"],
+      "description": "Network where the class is declared"
+    },
+    "license": {
+      "type": "string",
+      "description": "SPDX license identifier"
+    },
+    "author": {
+      "type": "object",
+      "required": ["name", "github"],
+      "properties": {
+        "name": { "type": "string" },
+        "github": { "type": "string" }
+      }
+    },
+    "repository": {
+      "type": "string",
+      "format": "uri",
+      "description": "Source code repository URL"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of supported capabilities"
+    },
+    "gasOverhead": {
+      "type": "number",
+      "description": "Gas overhead multiplier relative to standard account (1.0 = no overhead)"
+    },
+    "standards": {
+      "type": "object",
+      "properties": {
+        "src5": { "type": "boolean" },
+        "src6": { "type": "boolean" },
+        "snip9": { "type": "string" },
+        "snip12": { "type": "string" }
+      }
+    },
+    "interfaces": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Cairo interface names implemented"
+    },
+    "audit": {
+      "type": "object",
+      "properties": {
+        "audited": { "type": "boolean" },
+        "firm": { "type": "string" },
+        "reportUrl": { "type": "string", "format": "uri" },
+        "date": { "type": "string", "format": "date" },
+        "result": { "type": "string" },
+        "rounds": { "type": "integer" },
+        "finalReportClean": { "type": "boolean" }
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "properties": {
+        "mainnetAddress": { "type": "string" },
+        "deployedDate": { "type": "string", "format": "date" },
+        "commitHash": { "type": "string" }
+      }
+    },
+    "deprecated": {
+      "type": "boolean",
+      "description": "Whether this account is deprecated"
+    },
+    "supersededBy": {
+      "type": ["string", "null"],
+      "description": "ID of the account that replaces this one"
+    }
+  }
+}

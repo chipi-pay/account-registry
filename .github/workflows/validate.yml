@@ -1,0 +1,74 @@
+name: Validate Registry
+
+on:
+  pull_request:
+    paths:
+      - 'accounts/**'
+      - 'schema.json'
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ajv-cli
+        run: npm install -g ajv-cli ajv-formats
+
+      - name: Validate all account entries
+        run: |
+          for file in accounts/*.json; do
+            echo "Validating $file..."
+            ajv validate -s schema.json -d "$file" --spec=draft2020 -c ajv-formats
+          done
+
+      - name: Verify class hashes on mainnet
+        run: |
+          for file in accounts/*.json; do
+            CLASS_HASH=$(jq -r '.classHash' "$file")
+            ACCOUNT_ID=$(jq -r '.id' "$file")
+            echo "Checking $ACCOUNT_ID ($CLASS_HASH)..."
+
+            RESPONSE=$(curl -s -X POST "https://starknet-mainnet.infura.io/v3/4a4a1fdd7d704509aa99154fb29886e2" \
+              -H "Content-Type: application/json" \
+              -d "{\"jsonrpc\":\"2.0\",\"method\":\"starknet_getClass\",\"params\":[\"latest\",\"$CLASS_HASH\"],\"id\":1}")
+
+            if echo "$RESPONSE" | jq -e '.error' > /dev/null 2>&1; then
+              echo "ERROR: Class hash $CLASS_HASH not found on mainnet!"
+              exit 1
+            fi
+            echo "OK: $ACCOUNT_ID verified on mainnet"
+          done
+
+  generate-registry:
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate registry.json
+        run: |
+          echo '{"version":"1.0.0","lastUpdated":"'$(date +%Y-%m-%d)'","accounts":[' > registry.json
+          FIRST=true
+          for file in accounts/*.json; do
+            if [ "$FIRST" = true ]; then FIRST=false; else echo ',' >> registry.json; fi
+            jq '{id,name,type,version,classHash,deprecated}' "$file" >> registry.json
+          done
+          echo ']}' >> registry.json
+          jq '.' registry.json > registry.tmp && mv registry.tmp registry.json
+
+      - name: Commit registry.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add registry.json
+          git diff --cached --quiet || git commit -m "chore: regenerate registry.json"
+          git push
