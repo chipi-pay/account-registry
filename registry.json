@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0",
-  "lastUpdated": "2026-03-20",
+  "version": "1.1.0",
+  "lastUpdated": "2026-05-17",
   "accounts": [
     {
       "id": "chipi-v33",
@@ -25,6 +25,140 @@
       "version": "0.4.0",
       "classHash": "0x036078334509b514626504edc9fb252328d1a240e4e948bef8d0c08dff45927f",
       "deprecated": false
+    },
+    {
+      "id": "shhh-v8-4",
+      "name": "Shhh ShhhAccount V8.4",
+      "type": "SHHH",
+      "version": "8.4",
+      "classHash": "0x075dfb396145926bffa6beb659897f46cc082a50b211d80871cff7f1038fa58a",
+      "deprecated": false,
+      "declaredAt": {
+        "network": "mainnet",
+        "block": 9787252,
+        "txHash": "0x0737570e0430bed8e21c05bcb88a6f649f99d8a5f3d36dd0350a0dd172ea0dfd",
+        "date": "2026-05-15",
+        "costStrk": 43.67
+      },
+      "auditClosedAgainst": [
+        "audits/2026-05-12-claude-opus-v8-4-review.md",
+        "audits/2026-05-14-claude-opus-v8-4-pre-declare-audit.md"
+      ],
+      "source": {
+        "repo": "haycarlitos/shhh-wallet-cairo",
+        "commit": "3975532",
+        "tag": "v8.4"
+      },
+      "notes": "Pluggable-signer Starknet account. Dispatches verify() to one of 10 verifier classes (see shhh-v8-4-verifier-*) via library_call_syscall based on the owner's kind_tag. Account exposes SNIP-9 V2 outside execution as the only user-facing entry point. V8 ships without an upgrade selector — future versions require redeploy."
+    },
+    {
+      "id": "shhh-v8-3",
+      "name": "Shhh ShhhAccount V8.3",
+      "type": "SHHH",
+      "version": "8.3",
+      "classHash": "0x03bc539295abd3e59bd9ea799d12fe3331748d484bc77bff45b302b1636a87d9",
+      "deprecated": true,
+      "notes": "Deprecated 2026-05-15 — no stranded-bootstrap recovery (audit C-1 surface), no guardian-OE initiate_recovery."
+    },
+    {
+      "id": "shhh-v8-4-verifier-stark",
+      "name": "Shhh STARK Verifier",
+      "type": "SHHH_VERIFIER",
+      "kind": "STARK",
+      "classHash": "0x00d09209b2da9d49fc805ba26380ba4ce25aa641116c10eb178e1051a71dbf68",
+      "deprecated": false,
+      "gasOverheadL2": 2000000,
+      "notes": "Native ECDSA syscall — cheapest verifier."
+    },
+    {
+      "id": "shhh-v8-4-verifier-ed25519",
+      "name": "Shhh Ed25519 Verifier",
+      "type": "SHHH_VERIFIER",
+      "kind": "ED25519",
+      "classHash": "0x030a7dfc03e59cef6e41699e734abd2df53ce393a052221c02c6e07665949f74",
+      "deprecated": false,
+      "gasOverheadL2": 33000000,
+      "notes": "Garaga v1.0.1 is_valid_eddsa_signature. Required for Phantom (Solana) signer kind."
+    },
+    {
+      "id": "shhh-v8-4-verifier-secp256k1",
+      "name": "Shhh secp256k1 Verifier",
+      "type": "SHHH_VERIFIER",
+      "kind": "SECP256K1",
+      "classHash": "0x03e81667a46bd5287e09a9600fa98d28fdc477735f2689f5f4e8e95f37b67b74",
+      "deprecated": false,
+      "gasOverheadL2": 5000000,
+      "notes": "recover_public_key syscall. Raw secp256k1 signature."
+    },
+    {
+      "id": "shhh-v8-4-verifier-eip191-secp256k1",
+      "name": "Shhh EIP-191 secp256k1 Verifier",
+      "type": "SHHH_VERIFIER",
+      "kind": "EIP191_SECP256K1",
+      "classHash": "0x03a75997862059c36cb8e204fb3027eb6d1fdf933488d42c2db4528118d084e6",
+      "deprecated": false,
+      "gasOverheadL2": 10000000,
+      "notes": "MetaMask personal_sign. keccak256 over the EIP-191 prefix."
+    },
+    {
+      "id": "shhh-v8-4-verifier-eip712-secp256k1",
+      "name": "Shhh EIP-712 secp256k1 Verifier",
+      "type": "SHHH_VERIFIER",
+      "kind": "EIP712_SECP256K1",
+      "classHash": "0x072a3f77e8c28bfea2ade91ec3fb83b6290169d1ed8c1b2396704231841c6474",
+      "deprecated": false,
+      "gasOverheadL2": 12000000,
+      "notes": "EIP-712 typed-data signature with domain hash + struct hash."
+    },
+    {
+      "id": "shhh-v8-4-verifier-p256",
+      "name": "Shhh P-256 Verifier",
+      "type": "SHHH_VERIFIER",
+      "kind": "P256",
+      "classHash": "0x01b600709af54c8838e5f18ddad3a26feeb47cb124c239f55a0f1b7a780e2d8a",
+      "deprecated": false,
+      "gasOverheadL2": 30000000,
+      "notes": "secp256r1 syscall. Raw P-256 signature."
+    },
+    {
+      "id": "shhh-v8-4-verifier-webauthn-p256",
+      "name": "Shhh WebAuthn P-256 Verifier",
+      "type": "SHHH_VERIFIER",
+      "kind": "WEBAUTHN_P256",
+      "classHash": "0x074f6efd2af9025cd8cab41a4565bc73b6ef097214c31352838fcdbac0a44657",
+      "deprecated": false,
+      "gasOverheadL2": 35000000,
+      "notes": "P-256 + sha256(authData || sha256(clientData)). True keyless passkey — Face ID / Touch ID."
+    },
+    {
+      "id": "shhh-v8-4-verifier-jwt-es256",
+      "name": "Shhh JWT ES256 Verifier",
+      "type": "SHHH_VERIFIER",
+      "kind": "JWT_ES256",
+      "classHash": "0x002efce875fa3e73e04d825d8ebade53e188cc995dfe0c55a6a2f7fa6c59f497",
+      "deprecated": false,
+      "gasOverheadL2": 60000000,
+      "notes": "P-256 + RFC 7515 header parsing + payload nonce scan. Single-tenant JWT (Sign in with Apple/Google base case)."
+    },
+    {
+      "id": "shhh-v8-4-verifier-jwt-es256-apple-sub",
+      "name": "Shhh JWT ES256 Apple sub Verifier",
+      "type": "SHHH_VERIFIER",
+      "kind": "JWT_ES256_APPLE_SUB",
+      "classHash": "0x06b67762218a25fdd28e25b063480893a5cef9cdeecbc663e32d444d5734c471",
+      "deprecated": false,
+      "gasOverheadL2": 62000000,
+      "notes": "JWT_ES256 + poseidon(sub_bytes) identity binding. Multi-tenant Sign in with Apple."
+    },
+    {
+      "id": "shhh-v8-4-verifier-bls12-381",
+      "name": "Shhh BLS12-381 Verifier",
+      "type": "SHHH_VERIFIER",
+      "kind": "BLS12_381",
+      "classHash": "0x02623721e74a9ad3e0ba639065f5631a09bf900913de6ab21ea6984973cd2cd1",
+      "deprecated": false,
+      "gasOverheadL2": 80000000,
+      "notes": "Garaga pairing + on-chain G2 negation. Heaviest verifier — relevant for committee/DAO signers."
     }
   ]
 }
